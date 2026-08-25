@@ -1,0 +1,59 @@
+class Solution {
+    public int countCompleteComponents(int n, int[][] edges) {
+        int[] parent = new int[n];
+        int[] size = new int[n];
+        int[] degree = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+
+        for (int[] e : edges) {
+            degree[e[0]]++;
+            degree[e[1]]++;
+            union(e[0], e[1], parent, size);
+        }
+
+        boolean[] complete = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            complete[find(i, parent)] = 
+                complete[find(i, parent)] || degree[i] != size[find(i, parent)] - 1;
+        }
+
+        int ans = 0;
+
+        for (int i = 0; i < n; i++) {
+            if (parent[i] == i && !complete[i]) {
+                ans++;
+            }
+        }
+
+        return ans;
+    }
+
+    private int find(int x, int[] p) {
+        while (x != p[x]) {
+            p[x] = p[p[x]];
+            x = p[x];
+        }
+        return x;
+    }
+
+    private void union(int a, int b, int[] p, int[] size) {
+        a = find(a, p);
+        b = find(b, p);
+
+        if (a == b) return;
+
+        if (size[a] < size[b]) {
+            int t = a;
+            a = b;
+            b = t;
+        }
+
+        p[b] = a;
+        size[a] += size[b];
+    }
+}
