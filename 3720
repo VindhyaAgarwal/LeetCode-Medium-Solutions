@@ -1,0 +1,38 @@
+class Solution {
+    public String lexGreaterPermutation(String s, String target) {
+        int n = s.length();
+        int[] count = new int[26];
+        for (char c : s.toCharArray()) {
+            count[c - 'a']++;
+        }
+        
+        char[] res = new char[n];
+        if (dfs(count, target, 0, false, res)) {
+            return new String(res);
+        }
+        return "";
+    }
+    
+    private boolean dfs(int[] count, String target, int idx, boolean greater, char[] res) {
+        if (idx == target.length()) {
+            return greater;
+        }
+        
+        char targetChar = target.charAt(idx);
+        int start = greater ? 0 : (targetChar - 'a');
+        
+        for (int c = start; c < 26; c++) {
+            if (count[c] == 0) continue;
+            if (!greater && c < targetChar - 'a') continue;
+            
+            count[c]--;
+            res[idx] = (char)('a' + c);
+            boolean newGreater = greater || (c > targetChar - 'a');
+            if (dfs(count, target, idx + 1, newGreater, res)) {
+                return true;
+            }
+            count[c]++;
+        }
+        return false;
+    }
+}
