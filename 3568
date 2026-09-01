@@ -1,0 +1,88 @@
+import java.util.*;
+
+class Solution {
+    public int minMoves(String[] classroom, int energy) {
+        int m = classroom.length;
+        int n = classroom[0].length();
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, -1, 1};
+        
+        int startR = -1, startC = -1;
+        List<int[]> litterPos = new ArrayList<>();
+        
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                char c = classroom[i].charAt(j);
+                if (c == 'S') {
+                    startR = i;
+                    startC = j;
+                } else if (c == 'L') {
+                    litterPos.add(new int[]{i, j});
+                }
+            }
+        }
+        
+        int L = litterPos.size();
+        int fullMask = (1 << L) - 1;
+        
+        Queue<int[]> queue = new LinkedList<>();
+        int[][][] bestEnergy = new int[m][n][1 << L];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                Arrays.fill(bestEnergy[i][j], -1);
+            }
+        }
+        
+        queue.add(new int[]{startR, startC, 0, energy, 0});
+        bestEnergy[startR][startC][0] = energy;
+        
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            int r = cur[0], c = cur[1], mask = cur[2], remEnergy = cur[3], moves = cur[4];
+            
+            if (mask == fullMask) {
+                return moves;
+            }
+            
+            for (int d = 0; d < 4; d++) {
+                int nr = r + dr[d];
+                int nc = c + dc[d];
+                if (nr < 0 || nr >= m || nc < 0 || nc >= n) continue;
+                char cell = classroom[nr].charAt(nc);
+                if (cell == 'X') continue;
+                
+                int newRem = remEnergy - 1;
+                int newMask = mask;
+                int newMoves = moves + 1;
+                
+                if (newRem < 0) {
+                    if (classroom[r].charAt(c) == 'R') {
+                        newRem = energy - 1;
+                    } else {
+                        continue;
+                    }
+                }
+                
+                if (cell == 'R') {
+                    newRem = energy;
+                }
+                
+                if (cell == 'L') {
+                    for (int i = 0; i < L; i++) {
+                        if (litterPos.get(i)[0] == nr && litterPos.get(i)[1] == nc) {
+                            newMask |= (1 << i);
+                            break;
+                        }
+                    }
+                }
+                
+                if (newRem > bestEnergy[nr][nc][newMask]) {
+                    bestEnergy[nr][nc][newMask] = newRem;
+                    queue.add(new int[]{nr, nc, newMask, newRem, newMoves});
+                }
+            }
+        }
+        
+        return -1;
+    }
+}
