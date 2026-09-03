@@ -1,0 +1,18 @@
+class Solution {
+    public boolean uniformArray(int[] nums1) {
+        int minEven = Integer.MAX_VALUE;
+        int minOdd = Integer.MAX_VALUE;
+        int oddCount = 0;
+        
+        for (int num : nums1) {
+            if ((num & 1) == 0) {
+                if (num < minEven) minEven = num;
+            } else {
+                if (num < minOdd) minOdd = num;
+                oddCount++;
+            }
+        }
+        
+        return oddCount == 0 || oddCount == nums1.length || minOdd < minEven;
+    }
+}
