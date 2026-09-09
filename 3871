@@ -1,0 +1,18 @@
+class Solution {
+    public long countCommas(long n) {
+        long total = 0;
+        long threshold = 1000;
+        int commas = 1;
+        
+        while (threshold <= n) {
+            long end = Math.min(n, threshold * 1000 - 1);
+            long count = end - threshold + 1;
+            total += count * commas;
+            
+            threshold *= 1000;
+            commas++;
+        }
+        
+        return total;
+    }
+}
