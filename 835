@@ -1,0 +1,36 @@
+class Solution {
+    public int largestOverlap(int[][] img1, int[][] img2) {
+        int n = img1.length;
+        int[] bits1 = new int[n];
+        int[] bits2 = new int[n];
+        
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (img1[i][j] == 1) bits1[i] |= (1 << j);
+                if (img2[i][j] == 1) bits2[i] |= (1 << j);
+            }
+        }
+        
+        int max = 0;
+        
+        for (int dx = -(n - 1); dx <= n - 1; dx++) {
+            for (int dy = -(n - 1); dy <= n - 1; dy++) {
+                int overlap = 0;
+                for (int i = 0; i < n; i++) {
+                    int j = i + dx;
+                    if (j < 0 || j >= n) continue;
+                    int shifted;
+                    if (dy >= 0) {
+                        shifted = bits1[i] << dy;
+                    } else {
+                        shifted = bits1[i] >>> (-dy);
+                    }
+                    overlap += Integer.bitCount(shifted & bits2[j]);
+                }
+                if (overlap > max) max = overlap;
+            }
+        }
+        
+        return max;
+    }
+}
