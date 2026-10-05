@@ -1,0 +1,18 @@
+class Solution {
+    public int scoreOfParentheses(String s) {
+        Stack<Integer> stack = new Stack<>();
+        int sc = 0;
+
+        for (char c : s.toCharArray()) {
+            if (c == '(') {
+                stack.push(sc);
+                sc = 0;
+            } else {
+                int preSc = stack.pop();
+                sc = preSc + Math.max(2 * sc, 1);
+            }
+        }
+
+        return sc;
+    }
+}
