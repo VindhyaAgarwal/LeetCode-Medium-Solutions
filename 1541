@@ -1,0 +1,32 @@
+class Solution {
+    public int minInsertions(String s) {
+        char[] arr = s.toCharArray();
+        int n = arr.length;
+        int openCount = 0;
+        int insertions = 0;
+        int i = 0;
+        
+        while (i < n) {
+            if (arr[i] == '(') {
+                openCount++;
+                i++;
+            } else {
+                if (i + 1 < n && arr[i + 1] == ')') {
+                    if (openCount > 0) openCount--;
+                    else insertions++;
+                    i += 2;
+                } else {
+                    if (openCount > 0) {
+                        openCount--;
+                        insertions++;
+                    } else {
+                        insertions += 2;
+                    }
+                    i++;
+                }
+            }
+        }
+        
+        return insertions + (openCount << 1);
+    }
+}
