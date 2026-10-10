@@ -1,0 +1,38 @@
+class Solution {
+    public long minSumSquareDiff(int[] nums1, int[] nums2, int k1, int k2) {
+        int n = nums1.length;
+        long totalOps = (long)k1 + k2;
+        
+        int maxDiff = 0;
+        for (int i = 0; i < n; i++) {
+            maxDiff = Math.max(maxDiff, Math.abs(nums1[i] - nums2[i]));
+        }
+        
+        long[] cnt = new long[maxDiff + 1];
+        long totalDiff = 0;
+        for (int i = 0; i < n; i++) {
+            int d = Math.abs(nums1[i] - nums2[i]);
+            cnt[d]++;
+            totalDiff += d;
+        }
+        
+        if (totalOps >= totalDiff) return 0;
+        
+        for (int d = maxDiff; d > 0; d--) {
+            if (cnt[d] == 0) continue;
+            long take = Math.min(cnt[d], totalOps);
+            cnt[d] -= take;
+            cnt[d - 1] += take;
+            totalOps -= take;
+            if (totalOps == 0) break;
+        }
+        
+        long result = 0;
+        for (int d = 0; d <= maxDiff; d++) {
+            if (cnt[d] > 0) {
+                result += cnt[d] * (long)d * d;
+            }
+        }
+        return result;
+    }
+}
