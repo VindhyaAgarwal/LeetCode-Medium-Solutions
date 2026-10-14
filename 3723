@@ -1,0 +1,31 @@
+class Solution {
+    public String maxSumOfSquares(int num, int sum) {
+        if (sum < 1 || sum > 9 * num) {
+            return "";
+        }
+        
+        int nines = sum / 9;
+        int remainder = sum % 9;
+        
+        if (remainder > 0 && nines + 1 > num) {
+            return "";
+        }
+        
+        char[] result = new char[num];
+        int idx = 0;
+        
+        for (int i = 0; i < nines; i++) {
+            result[idx++] = '9';
+        }
+        
+        if (remainder > 0) {
+            result[idx++] = (char)('0' + remainder);
+        }
+        
+        while (idx < num) {
+            result[idx++] = '0';
+        }
+        
+        return new String(result);
+    }
+}
