@@ -1,0 +1,47 @@
+class Solution {
+    private boolean[] seen = new boolean[1024];
+
+    public int minCost(int[][] grid) {
+        int m = grid.length, n = grid[0].length;
+
+        int[][] active = new int[n][1024];
+        int[] cnt = new int[n];
+        int[] tmp = new int[2048];
+
+        active[0][0] = grid[0][0];
+        cnt[0] = 1;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == 0 && j == 0) continue;
+                int g = grid[i][j];
+                int tc = 0;
+
+                if (i > 0) {
+                    int[] up = active[j];
+                    int uc = cnt[j];
+                    for (int t = 0; t < uc; t++) tmp[tc++] = up[t] ^ g;
+                }
+                if (j > 0) {
+                    int[] left = active[j - 1];
+                    int lc = cnt[j - 1];
+                    for (int t = 0; t < lc; t++) tmp[tc++] = left[t] ^ g;
+                }
+
+                int[] out = active[j];
+                int oc = 0;
+                for (int t = 0; t < tc; t++) {
+                    int v = tmp[t];
+                    if (!seen[v]) { seen[v] = true; out[oc++] = v; }
+                }
+                for (int t = 0; t < oc; t++) seen[out[t]] = false;
+                cnt[j] = oc;
+            }
+        }
+
+        int best = Integer.MAX_VALUE;
+        int[] last = active[n - 1];
+        for (int t = 0; t < cnt[n - 1]; t++) if (last[t] < best) best = last[t];
+        return best;
+    }
+}
