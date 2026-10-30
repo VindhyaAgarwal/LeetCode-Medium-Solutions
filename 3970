@@ -1,1 +1,82 @@
+class Solution {
+    public int shortestPath(int n, int[][] edges, String labels, int k) {
+        int[] head = new int[n];
+        java.util.Arrays.fill(head, -1);
+        int m = edges.length;
+        int[] to = new int[m], wt = new int[m], nxt = new int[m];
+        for (int i = 0; i < m; i++) {
+            int u = edges[i][0];
+            to[i] = edges[i][1];
+            wt[i] = edges[i][2];
+            nxt[i] = head[u];
+            head[u] = i;
+        }
 
+        int W = k + 1;
+        int[] dist = new int[n * W];
+        java.util.Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[1] = 0;
+
+        // encode state as node * W + cnt
+        long[] heap = new long[16];
+        int size = 0;
+        heap[size++] = pack(0L, 1);
+
+        char[] lab = labels.toCharArray();
+
+        while (size > 0) {
+            long top = pop(heap, size--);
+            int d = (int) (top >>> 32);
+            int state = (int) top;
+            if (d > dist[state]) continue;
+            int node = state / W, cnt = state - node * W;
+            if (node == n - 1) return d;
+            char c = lab[node];
+            for (int e = head[node]; e != -1; e = nxt[e]) {
+                int v = to[e], nc;
+                if (lab[v] == c) {
+                    nc = cnt + 1;
+                    if (nc > k) continue;
+                } else {
+                    nc = 1;
+                }
+                int ns = v * W + nc;
+                int nd = d + wt[e];
+                if (nd < dist[ns]) {
+                    dist[ns] = nd;
+                    if (size == heap.length) heap = java.util.Arrays.copyOf(heap, size << 1);
+                    push(heap, size++, pack((long) nd, ns));
+                }
+            }
+        }
+        return -1;
+    }
+
+    private static long pack(long d, int s) { return (d << 32) | (s & 0xFFFFFFFFL); }
+
+    private static void push(long[] h, int size, long v) {
+        int i = size;
+        h[i] = v;
+        while (i > 0) {
+            int p = (i - 1) >>> 1;
+            if (h[p] <= h[i]) break;
+            long t = h[p]; h[p] = h[i]; h[i] = t;
+            i = p;
+        }
+    }
+
+    private static long pop(long[] h, int size) {
+        long top = h[0];
+        h[0] = h[size - 1];
+        int i = 0, n = size - 1;
+        while (true) {
+            int l = 2 * i + 1, r = l + 1, s = i;
+            if (l < n && h[l] < h[s]) s = l;
+            if (r < n && h[r] < h[s]) s = r;
+            if (s == i) break;
+            long t = h[s]; h[s] = h[i]; h[i] = t;
+            i = s;
+        }
+        return top;
+    }
+}
