@@ -1,0 +1,22 @@
+class Solution {
+    public int myAtoi(String s) {
+        int i = 0, n = s.length(), sign = 1, r = 0;
+        while (i < n && s.charAt(i) == ' ') i++;
+        if (i < n && (s.charAt(i) == '+' || s.charAt(i) == '-')) {
+            if (s.charAt(i) == '-') sign = -1;
+            i++;
+        }
+        int limit = sign == 1 ? -Integer.MAX_VALUE : Integer.MIN_VALUE;
+        int multmin = limit / 10;
+        while (i < n) {
+            int d = s.charAt(i) - '0';
+            if (d < 0 || d > 9) break;
+            if (r < multmin) return sign == 1 ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            r *= 10;
+            if (r < limit + d) return sign == 1 ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            r -= d;
+            i++;
+        }
+        return sign == 1 ? -r : r;
+    }
+}
