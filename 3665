@@ -1,0 +1,85 @@
+class Solution {
+    private int m, n;
+    private int[][] grid;
+    private int[] resR, resD;
+    private int[] chainI, chainJ;
+    private boolean[] chainDir;
+    private static final int UNCOMPUTED = -3, INVALID = -2;
+    private static final int MOD = 1_000_000_007;
+
+    private int resolve(int si, int sj, boolean goingRight) {
+        int len = 0;
+        int ci = si, cj = sj;
+        boolean dir = goingRight;
+        int finalResult = INVALID;
+        while (true) {
+            if (dir) {
+                int idx = ci * n + cj;
+                int cached = resR[idx];
+                if (cached != UNCOMPUTED) { finalResult = cached; break; }
+                chainI[len] = ci; chainJ[len] = cj; chainDir[len] = true; len++;
+                int ni = ci + 1;
+                if (ni >= m) { finalResult = INVALID; break; }
+                if (grid[ni][cj] == 0) { finalResult = ni * n + cj; break; }
+                ci = ni; dir = false;
+            } else {
+                int idx = ci * n + cj;
+                int cached = resD[idx];
+                if (cached != UNCOMPUTED) { finalResult = cached; break; }
+                chainI[len] = ci; chainJ[len] = cj; chainDir[len] = false; len++;
+                int nj = cj + 1;
+                if (nj >= n) { finalResult = INVALID; break; }
+                if (grid[ci][nj] == 0) { finalResult = ci * n + nj; break; }
+                cj = nj; dir = true;
+            }
+        }
+        for (int k = len - 1; k >= 0; k--) {
+            int idx = chainI[k] * n + chainJ[k];
+            if (chainDir[k]) resR[idx] = finalResult; else resD[idx] = finalResult;
+        }
+        return finalResult;
+    }
+
+    public int uniquePaths(int[][] grid) {
+        this.grid = grid;
+        m = grid.length;
+        n = grid[0].length;
+        resR = new int[m * n];
+        resD = new int[m * n];
+        java.util.Arrays.fill(resR, UNCOMPUTED);
+        java.util.Arrays.fill(resD, UNCOMPUTED);
+        chainI = new int[m + n + 1];
+        chainJ = new int[m + n + 1];
+        chainDir = new boolean[m + n + 1];
+
+        int[] dp = new int[m * n];
+        for (int s = m + n - 2; s >= 0; s--) {
+            int iStart = Math.max(0, s - (n - 1));
+            int iEnd = Math.min(m - 1, s);
+            for (int i = iStart; i <= iEnd; i++) {
+                int j = s - i;
+                int idx = i * n + j;
+                if (i == m - 1 && j == n - 1) { dp[idx] = 1; continue; }
+                int total = 0;
+                if (j + 1 < n) {
+                    if (grid[i][j + 1] == 0) total += dp[idx + 1];
+                    else {
+                        int landed = resolve(i, j + 1, true);
+                        if (landed != INVALID) total += dp[landed];
+                    }
+                }
+                if (i + 1 < m) {
+                    if (grid[i + 1][j] == 0) total += dp[idx + n];
+                    else {
+                        int landed = resolve(i + 1, j, false);
+                        if (landed != INVALID) total += dp[landed];
+                    }
+                }
+                if (total >= MOD) total -= MOD;
+                if (total >= MOD) total -= MOD;
+                dp[idx] = total;
+            }
+        }
+        return dp[0];
+    }
+}
