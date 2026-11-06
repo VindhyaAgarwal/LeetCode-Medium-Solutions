@@ -1,0 +1,38 @@
+class Solution {
+    public int[] countServers(int n, int[][] logs, int x, int[] queries) {
+        Arrays.sort(logs, (a, b) -> a[1] - b[1]);
+        
+        int m = queries.length;
+        Integer[] idx = new Integer[m];
+        for (int i = 0; i < m; i++) idx[i] = i;
+        Arrays.sort(idx, (a, b) -> queries[a] - queries[b]);
+        
+        int[] result = new int[m];
+        int[] serverCount = new int[n + 1];
+        int distinct = 0;
+        int left = 0, right = 0;
+        int logLen = logs.length;
+        
+        for (int qi = 0; qi < m; qi++) {
+            int i = idx[qi];
+            int endTime = queries[i];
+            int startTime = endTime - x;
+            
+            while (right < logLen && logs[right][1] <= endTime) {
+                int s = logs[right][0];
+                if (serverCount[s]++ == 0) distinct++;
+                right++;
+            }
+            
+            while (left < right && logs[left][1] < startTime) {
+                int s = logs[left][0];
+                if (--serverCount[s] == 0) distinct--;
+                left++;
+            }
+            
+            result[i] = n - distinct;
+        }
+        
+        return result;
+    }
+}
