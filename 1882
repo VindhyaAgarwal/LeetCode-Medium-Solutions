@@ -1,0 +1,68 @@
+class Solution {
+    static class LongHeap {
+        long[] a; int size;
+        LongHeap(int cap) { a = new long[cap]; }
+        void offer(long x) {
+            if (size == a.length) a = java.util.Arrays.copyOf(a, size * 2);
+            int i = size++; a[i] = x;
+            while (i > 0) {
+                int p = (i - 1) >>> 1;
+                if (a[p] <= a[i]) break;
+                long t = a[p]; a[p] = a[i]; a[i] = t; i = p;
+            }
+        }
+        long poll() {
+            long top = a[0];
+            a[0] = a[--size];
+            int i = 0;
+            while (true) {
+                int l = 2*i+1, r = l+1, s = i;
+                if (l < size && a[l] < a[s]) s = l;
+                if (r < size && a[r] < a[s]) s = r;
+                if (s == i) break;
+                long t = a[s]; a[s] = a[i]; a[i] = t; i = s;
+            }
+            return top;
+        }
+        boolean isEmpty() { return size == 0; }
+        long peek() { return a[0]; }
+    }
+
+    public int[] assignTasks(int[] servers, int[] tasks) {
+        int n = servers.length, m = tasks.length;
+        final long M = 200001L;
+
+        LongHeap free = new LongHeap(n + m);
+        PriorityQueue<long[]> busy = new PriorityQueue<>((x, y) -> {
+            if (x[0] != y[0]) return Long.compare(x[0], y[0]);
+            if (x[1] != y[1]) return Long.compare(x[1], y[1]);
+            return Long.compare(x[2], y[2]);
+        });
+
+        for (int i = 0; i < n; i++) free.offer((long) servers[i] * M + i);
+
+        int[] ans = new int[m];
+        long time = 0;
+
+        for (int j = 0; j < m; j++) {
+            if (time < j) time = j;
+            while (!busy.isEmpty() && busy.peek()[0] <= time) {
+                long[] s = busy.poll();
+                free.offer(s[1] * M + s[2]);
+            }
+            if (free.isEmpty()) {
+                time = busy.peek()[0];
+                while (!busy.isEmpty() && busy.peek()[0] <= time) {
+                    long[] s = busy.poll();
+                    free.offer(s[1] * M + s[2]);
+                }
+            }
+            long v = free.poll();
+            int idx = (int)(v % M);
+            long weight = v / M;
+            ans[j] = idx;
+            busy.offer(new long[]{time + tasks[j], weight, idx});
+        }
+        return ans;
+    }
+}
