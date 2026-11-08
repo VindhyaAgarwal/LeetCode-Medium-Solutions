@@ -1,0 +1,32 @@
+class Solution {
+    public int countServers(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int[] rowCount = new int[m];
+        int[] colCount = new int[n];
+        int total = 0;
+
+        for (int i = 0; i < m; i++) {
+            int[] row = grid[i];
+            for (int j = 0; j < n; j++) {
+                if (row[j] == 1) {
+                    rowCount[i]++;
+                    colCount[j]++;
+                    total++;
+                }
+            }
+        }
+
+        int isolated = 0;
+        for (int i = 0; i < m; i++) {
+            if (rowCount[i] == 1) {
+                int[] row = grid[i];
+                for (int j = 0; j < n; j++) {
+                    if (row[j] == 1 && colCount[j] == 1) isolated++;
+                }
+            }
+        }
+
+        return total - isolated;
+    }
+}
