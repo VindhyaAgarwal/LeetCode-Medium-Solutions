@@ -1,0 +1,26 @@
+class Solution {
+    public long minimumCost(int cost1, int cost2, int costBoth, int need1, int need2) {
+        long n1 = need1, n2 = need2;
+        long c1 = cost1, c2 = cost2, cb = costBoth;
+
+        long sep = n1 * c1 + n2 * c2;
+        if (cb >= c1 + c2) return sep;
+
+        long best = sep;
+
+        long d = n2 - n1;
+        long cost;
+        if (d >= 0) {
+            cost = n1 * cb + d * c2;
+        } else {
+            cost = n2 * cb - d * c1;
+        }
+        if (cost < best) best = cost;
+
+        long m = n1 > n2 ? n1 : n2;
+        cost = m * cb;
+        if (cost < best) best = cost;
+
+        return best;
+    }
+}
