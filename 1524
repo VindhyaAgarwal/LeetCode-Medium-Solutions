@@ -1,0 +1,19 @@
+class Solution {
+    public int numOfSubarrays(int[] arr) {
+        int MOD = 1_000_000_007;
+        int odd = 0, even = 1, sum = 0;
+        long result = 0;
+        for (int num : arr) {
+            sum ^= (num & 1);
+            if (sum == 0) {
+                result += odd;
+                even++;
+            } else {
+                result += even;
+                odd++;
+            }
+            if (result >= MOD) result -= MOD;
+        }
+        return (int) result;
+    }
+}
