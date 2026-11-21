@@ -1,0 +1,77 @@
+class Solution {
+    public int[] findSubtreeSizes(int[] parent, String s) {
+        int n = parent.length;
+
+        int[] head = new int[n];
+        int[] next = new int[n];
+        Arrays.fill(head, -1);
+        for (int i = 1; i < n; i++) {
+            next[i] = head[parent[i]];
+            head[parent[i]] = i;
+        }
+
+        int[] newParent = parent.clone();
+        int[] lastSeen = new int[26];
+        Arrays.fill(lastSeen, -1);
+
+        int[] stack = new int[n];
+        int[] saved = new int[n];
+        int[] cur = new int[n];
+        int top = 0;
+        stack[0] = 0;
+        saved[0] = -1;
+        cur[0] = head[0];
+
+        {
+            int idx = s.charAt(0) - 'a';
+            saved[0] = lastSeen[idx];
+            lastSeen[idx] = 0;
+        }
+
+        while (top >= 0) {
+            int u = stack[top];
+            int v = cur[top];
+            if (v != -1) {
+                cur[top] = next[v];
+                top++;
+                stack[top] = v;
+                saved[top] = -1;
+                cur[top] = head[v];
+                int idx = s.charAt(v) - 'a';
+                saved[top] = lastSeen[idx];
+                if (lastSeen[idx] != -1) newParent[v] = lastSeen[idx];
+                lastSeen[idx] = v;
+            } else {
+                lastSeen[s.charAt(u) - 'a'] = saved[top];
+                top--;
+            }
+        }
+
+        int[] nhead = new int[n];
+        int[] nnext = new int[n];
+        Arrays.fill(nhead, -1);
+        for (int i = 1; i < n; i++) {
+            nnext[i] = nhead[newParent[i]];
+            nhead[newParent[i]] = i;
+        }
+
+        int[] size = new int[n];
+        Arrays.fill(size, 1);
+
+        int[] order = new int[n];
+        int[] stk = new int[n];
+        int t = 0, oi = 0;
+        stk[t++] = 0;
+        while (t > 0) {
+            int u = stk[--t];
+            order[oi++] = u;
+            for (int v = nhead[u]; v != -1; v = nnext[v]) stk[t++] = v;
+        }
+        for (int i = n - 1; i >= 1; i--) {
+            int u = order[i];
+            size[newParent[u]] += size[u];
+        }
+
+        return size;
+    }
+}
